@@ -12,3 +12,5 @@
 
 1:55 am: implemented the parse history function had issues with strings but fixed it, now it should return empty remaining string. 
 
+3:00 am: kept facing unknown error when implementing the parse value function but was finally able to implement going to start on operators next 
+

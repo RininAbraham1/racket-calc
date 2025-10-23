@@ -49,4 +49,11 @@
       [num-result num-result]      
       [history-result history-result]   
       [else #f])))
+(define (parse-operator str)
+  (cond
+    [(string-prefix? str "+") (list '+ (string-trim (substring str 1)))]
+    [(string-prefix? str "*") (list '* (string-trim (substring str 1)))]
+    [(string-prefix? str "/") (list '/ (string-trim (substring str 1)))]
+    [(string-prefix? str "-") (list '- (string-trim (substring str 1)))]
+    [else #f]))
 (start-program)

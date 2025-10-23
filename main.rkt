@@ -28,5 +28,9 @@
        
        (main-loop history)])))
 
-
+(define (parse-number str)
+  (let ([result (string->number str)])
+    (if result
+        (list result "")  
+        #f)))             
 (start-program)

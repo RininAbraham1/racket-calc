@@ -20,9 +20,22 @@
       [(eof-object? user-input) (void)]  
       [(string=? user-input "quit") (void)]  
       [else
-       (displayln (string-append "Got: " user-input))
-       (main-loop history)])))
-
+       (let ([result (evaluate-expression user-input history)])
+         (if result
+             (let ([value (first result)]
+                   [remaining (second result)])
+               (if (string=? (string-trim remaining) "")
+                   (let ([new-history (cons value history)]
+                         [history-id (+ 1 (length history))])
+                     (display (format "~a: " history-id))
+                     (displayln (real->double-flonum value))
+                     (main-loop new-history))
+                   (begin
+                     (displayln "Error: Invalid Expression")
+                     (main-loop history))))
+             (begin
+               (displayln "Error: Invalid Expression")
+               (main-loop history))))])))
 
 (define (get-numeric-prefix str)
   (let loop ([i 0])
@@ -36,7 +49,6 @@
              (loop next-i)
              (substring str 0 i)))]
       [else (substring str 0 i)])))
-
 
 (define (parse-number-token str)
   (let ([trimmed (string-trim str)])
@@ -55,10 +67,11 @@
   (if (and (>= (string-length str) 2)
            (char=? (string-ref str 0) #\$)
            (char-numeric? (string-ref str 1)))
-      (let* ([num-str (substring str 1)]
-             [history-id (string->number num-str)])
+      (let* ([num-part (get-numeric-prefix (substring str 1))]
+             [history-id (string->number num-part)])
         (if history-id
-            (list history-id (substring str (+ 1 (string-length (number->string history-id)))))
+            (list (string->symbol (format "$~a" history-id)) 
+                  (substring str (+ 1 (string-length num-part))))
             #f))
       #f))
 
@@ -83,8 +96,7 @@
       [(parse-operator-token trimmed) => (lambda (result) result)]
       [else #f])))
 
-
-(define (evaluate-expression str history)
+(define (parse-sub-expression str history)
   (let ([trimmed (string-trim str)])
     (if (string=? trimmed "")
         #f
@@ -94,19 +106,37 @@
                     [remaining (second token-result)])
                 (cond
                   [(number? value) (list value remaining)]
-                  [(symbol? value)
-                   (evaluate-operator value remaining history)]
+                  [(symbol? value)  
+                   (if (and (>= (string-length (symbol->string value)) 2)
+                            (char=? (string-ref (symbol->string value) 0) #\$))
+                       (let* ([id-str (substring (symbol->string value) 1)]
+                              [history-id (string->number id-str)]
+                              [history-index (- history-id 1)])
+                         (if (and history-id (>= history-index 0) (< history-index (length history)))
+                             (list (list-ref (reverse history) history-index) remaining)
+                             #f))
+                       (evaluate-operator value remaining history))]
                   [else #f]))
               #f)))))
+
+(define (evaluate-expression str history)
+  (let ([result (parse-sub-expression str history)])
+    (if result
+        (let ([value (first result)]
+              [remaining (second result)])
+          (if (string=? (string-trim remaining) "")
+              (list value "")
+              #f))
+        #f)))
 
 (define (evaluate-operator operator remaining-str history)
   (cond
     [(member operator '(+ *))
-     (let* ([arg1-result (evaluate-expression remaining-str history)])
+     (let* ([arg1-result (parse-sub-expression remaining-str history)])
        (if arg1-result
            (let* ([arg1 (first arg1-result)]
                   [after-arg1 (second arg1-result)]
-                  [arg2-result (evaluate-expression after-arg1 history)])
+                  [arg2-result (parse-sub-expression after-arg1 history)])
              (if arg2-result
                  (let* ([arg2 (first arg2-result)]
                         [after-arg2 (second arg2-result)])

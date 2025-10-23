@@ -10,3 +10,5 @@
 
 1:33 am: Implemented the parse number function and tested, going to start working on the history and value functions. 
 
+1:55 am: implemented the parse history function had issues with strings but fixed it, now it should return empty remaining string. 
+

@@ -18,5 +18,41 @@
 
 1:34 pm: Was able to implement expression evaluation for prefix notation, Was experiencing errors with racket's string to number failing with trailing content. I solved this by creating a prefix numeric function that can extract only the numeric part of the string. This was really complicated, I had to debug by creating display in for each step to figure out the bug and then fix it.
 
-3:20 pm: The core calculator integration should be complete, History function should be done, ouput formatting, error handling, arithmetic etc.  
+3:20 pm: The core calculator integration should be complete, History function should be done, output formatting, error handling, arithmetic etc.  
+
+3:40 pm: Batch mode is successful see below:
+
+C:\\Users\\Rinin>cd C:\\Users\\Rinin
+
+
+
+C:\\Users\\Rinin>"C:\\Program Files\\Racket\\Racket.exe" main.rkt -b
+
+5
+
+1: 5.0
+
+\+ 1 2
+
+2: 3.0
+
+\* $1 $2
+
+3: 15.0
+
+
+
+
+
+The calculator should be fully functional with both modes. 
+
+
+
+
+
+
+
+
+
+
 
